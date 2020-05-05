@@ -1,1 +1,61 @@
+Test one thing at a time
+Put some asserts in? can be done later
+
+Test 1: Happy path, everything works
+Test 2: Boundaries
+Test 3: Every path
+Test 4: Errors
+
+Testing: initServo
+1: Function takes no inputs, so only one test. 
+Check that turning on the servo sets both to the correct position
+Check that the other PWM signals are still off
+Check that the signal is aligned properly
+Check that the duty cycle is correct, experiement by setting different start positions
+
+Testing: setServo(angle,servoChoice)
+// TODO Add asserts that make sure we dont give it a value that goes beyond its boundaries (must be done in switch case)
+1. Give it a value of 40 degrees for either servo
+Check that the servo goes to the right position
+Check that only one servo moves, not both
+Change the test so that the other servo is triggered and check the same results
+2. Give tilt a negative value like -30 (but above -60)
+Check that position is correct
+Check that only one servo moves
+3. Give a negative value to azimuth
+Make sure error is detected! do NOT want the azimuth going out of bounds
+4. Give high and low out of bounds to heading
+Make sure error is detected!!
+5. Give a zero angle
+Check that both servos accept this
+
+Testing: initLaser
+1. Laser turns on
+Check that the laser is giving off values and is initialised correctly
+
+Testing: getRange(sampleFrequency)
+1. Give a nominal sample frequency
+Check that the return is an appropriate value in the right units
+2. Give a frequency that is higher
+Check that the samples are taken faster (might have to use LEDs to test this)
+3. Give a frequency that is out of bounds
+Check that the error is detected
+4. Give a frequency of 0
+Check that the error is detected
+
+____ Module Testing ____
+Testing: Main //TODO break main down into another 1 or 2 functions that call the other functions
+1. Give nominal azimuth and ranges (40 to 50 for both) and step size 1 degree, 1 sample, average frequency
+Check that the array of polar coords is initialised with the correct size and the correct values in each box (including ranges as -1)
+Step through the program and check that each step gives an appropriate value and takes an appropriate number of clock cycles
+Check how much memory the polarCoords array takes up, if its too much then look for problems
+2. Give average values 40 120 az, -20 20 elevation, step size 1 degree, 1 sample, average frequency
+Make sure that polarCoords still initialises the same
+3. Give same as 2 but change up for a smaller step size
+4. Bigger step size
+5. Multiple samples
+Check that the average of the samples is received
+6. Change up the frequency and check if the program runs faster/slower
+
+
 
