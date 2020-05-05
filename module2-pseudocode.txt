@@ -8,7 +8,7 @@ initServo(void)
 
 // May not need, TBD //flag = 1,2 or 3 			(integer) 				//Output Flag (online, offline or demonstration)
 azimuthRangeArray = [30 160] 	(2 element int array) 	//Azimuth (between 30-160)
-elevationRangeArray = [30 160]  	(2 element int array)	//Elevation (Between 30-160)
+elevationRangeArray = [-60 60]  	(2 element int array)	//Elevation (Between 30-160)
 stepSize = 100 				(integer in degrees^-1) //Resolution (step size)) (1 represents 0.1 degrees)
 sampleLimit = 3 			(integer)  				//Samples per Orientation (1-5) // How many should we have?
 sampleFreq = ???  									//Sample Frequency (
