@@ -1,0 +1,54 @@
+// Receive and process all the information from module 1
+// Important note!! if in DEMO mode, we will request that module 1 can simply give us 'dummy' values
+// , e.g. full range of azimuth & elevation, 1 sample, 1 degree step size, etc. Then we dont need to check flag in module 2
+
+// May not need, TBD //flag = 1,2 or 3 			(integer) 				//Output Flag (online, offline or demonstration)
+azimuthRangeArray = [30 160] 	(2 element int array) 	//Azimuth (between 30-160)
+elevationRangeArray = [30 160]  	(2 element int array)	//Elevation (Between 30-160)
+stepSize = 100 				(integer in degrees^-1) //Resolution (step size)) (1 represents 0.1 degrees)
+sampleLimit = 3 			(integer)  				//Samples per Orientation (1-5) // How many should we have?
+sampleFreq = ???  									//Sample Frequency (
+
+
+// Create an array with every angle
+
+aziRange = azimuthRangeArray[1] - azimuthRangeArray[0]      // Find ranges we need to step through for azimuth
+aziSteps = azRange/stepSize                                 // Find how many steps we need to make for the azimuth, 
+                                                            // (number of azimuth values we will have-1)
+eleRange = elevationRangeArray[1] - elevationRangeArray[0]  // Find ranges we need to step through for elevation
+eleSteps = eleRange/stepSize                                 // Find how many steps we need to make for the elevation, 
+                                                            // (number of elevation values we will have-1)
+
+int PolarCoords [eleSteps+1][azSteps+1][3] // 3D array of polar coords, store values in format r,theta,phi (Range,elevation,azimuth)
+                                           // Refer to PolarCoordMemoryMap.drawio for understanding
+                                           //(+1 to account for inclusive boundaries)
+                                          
+// Fill every point in the array with the angles we want at that point, so only range needs to be filled later
+for i=0, i <eleSteps+1
+    for j=0, j<azSteps+1
+    
+        polarCoords[i][j][1] = minElevation+i*stepSize
+        polarCoords[i][j][2] = minAzimuth  +j*stepSize
+    
+    end
+end
+    
+// Still in progress below here
+
+// Loop through every point in the array
+
+for theta (all valid phi)
+    setServo(azi,phi)
+
+    for (all valid theta)
+        setServo(alt,
+
+        for (n<sampleLimit)
+            getRange() 
+
+        end
+
+    end
+
+end
+
