@@ -2,6 +2,10 @@
 // Important note!! if in DEMO mode, we will request that module 1 can simply give us 'dummy' values
 // , e.g. full range of azimuth & elevation, 1 sample, 1 degree step size, etc. Then we dont need to check flag in module 2
 
+main{
+
+initServo(void)
+
 // May not need, TBD //flag = 1,2 or 3 			(integer) 				//Output Flag (online, offline or demonstration)
 azimuthRangeArray = [30 160] 	(2 element int array) 	//Azimuth (between 30-160)
 elevationRangeArray = [30 160]  	(2 element int array)	//Elevation (Between 30-160)
@@ -64,8 +68,8 @@ for i = 0, i<eleSteps+1
         setServo(polarCoords[i][j][1], ELEVATION) // Call the servo function to set to a certain angle
         setServo(polarCoords[i][j][2], AZIMUTH)  //TODO, change these to #define'd chars  
         
-        // Send servo position to module 4 HERE
-        // Tell module 3 a reading is being taken HERE
+        // Send servo position to module 4 HERE----------------------->
+        // Tell module 3 a reading is being taken HERE------------------>
         
         // Take and sum all measurements for range
         rangeSum = 0
@@ -74,31 +78,66 @@ for i = 0, i<eleSteps+1
             end
         // Store the average range measured for this position    
         polarCoords[i][j][0] = rangeSum/sampleLimit
-        // Send current range to module 4 HERE
+        // Send current range to module 4 HERE-------------------------------->
         
     end
 end
 // After this loop, we have the completed array with every required range
-// Send completed array to module 4 HERE
-
-//TODO FUNCTIONS BELOW
-range = getRange(int sampleFreq){
-
-// Use input-output capture here, translate PWM into centimeters
-// Wait based on the amount of time specified in frequency
-
+// Send completed array to module 4 HERE------------------------->
 }
 
+//TODO fix up functions below
+________________________________________________________________________
+// Sets up the laser
+void initLaser(){
+    // Capture input on rising edge only
+  //  EDG1B = 0
+   // EDG1A = 1
+}
+
+// Gets the range of the laser from the object it is looking at (measured in cm)
+int range = getRange(int sampleFreq){
+    // Use input-output capture here, translate PWM into centimeters
+    // Wait based on the amount of time specified in frequency, i.e. choose a period?
+    // Capture the signal using input capture channel 1 (refer to Huang Example 8.3)
+}
+
+// This function sets up the servo so it can be used later without setup
+void initServo(void){
+    // Set registers
+    PPOLx -- > 1 (Duty cycle is spent high)
+    CAEx --> 0 (left aligned channels)
+    // Set clocks for both channels
+    // Set duty cycle for both channels as LOW
+
+
+    PWME5 = 1 // Enable azimuth channel
+    PWME7 = 1 // Enable tilt channel
+    // These will run the PWM channels until theyre disabled
+}
+
+// Receives an angle and a choice of which servo is being changed
+// Changes the duty cycle for the correct PWM channel to move it to that angle
+// Low and high values for PWM found experimentally
 void setServo(int angle, char servoChoice){
+    // Change the angle measurement into a number between say 0.9 and 2.1
+    // Set these as arbitrary measurements as it will require calibration
+    // The low value corresponds to an angle of 30 degrees, high corresponds to 160 degrees
+    // Use the PWM subsystem to send a signal to the servo
 
-// Change the angle measurement into a number between say 0.9 and 2.1
-// Set these as arbitrary measurements as it will require calibration
-// The low value corresponds to an angle of 30 degrees, high corresponds to 160 degrees
-// Use the PWM subsystem to send a signal to the servo
-// 
+    // MATHS: if LOW -> 0 degrees, and HIGH -> 180 degrees, then HIGH-LOW = GAP (e.g. 2.1-0.9 =1.2)
+    // Then duty cycle = LOW + GAP*angle/180 (This formula will be edited to work within the confines of integer division)
 
+    dutyCycle = LOW + GAP*angle/180
+
+    switch servoChoice
+    case AZIMUTH
+      // Set duty cycle for azimuth channel (5)
+      dutyCycle -> duty cycle register
+    break
+    case ELEVATION
+      // Set duty cycle for elevation channel (7)
+      dutyCycle -> duty cycle register
+    break
+    
 }
-
-
-
-
