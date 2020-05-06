@@ -1,0 +1,136 @@
+//Hi THIS IS RICKY
+
+//Module 1 - PseudoCode
+
+//function prototypes
+void print_question(char question_number)
+void delay10us() //for debouncing
+int ascii_to_int(char ascii)
+
+print_question(char question_number){
+//enable transmitter
+//loop through each element of the question and transmit to SCI
+//enable receiver
+}
+
+ascii_to_int(char ascii){
+  integer = ascii - 30;
+return integer
+}
+
+//Lookup table for keypad
+
+//creating memory tags for each output
+azimiuth = $xxxx
+range = $yyyy
+Resolution = $zzzz
+Samples per orientation = $?
+Sample Frequency  = $?
+mode_flag = 0 //offline, online, demo
+LCD_display = 0 //if demo what being displayed
+
+//storing the question prompts for the user
+char q1[] = "please press 1 for computer input or 2 for hardware input"
+char q2[] = "please type in 3 digit number for bottom threshold for azimuth range (030 min) followed by an enter"
+char q3[] = "please type in 3 digit number for max threshold for azimuth range (160 max) followed by an enter"
+char q4[] = "please type in sign followed by 2 digit number for min threshold for range (-60 min) followed by an enter"
+char q5[] = "please type in sign followed by 2 digit number for max threshold for range (+60 min) followed by an enter"
+char q6[] = "please type in 2 digit number (00-99) for resolution followed by an enter (each step is worth 0.1 degrees)
+char q7[] = "please type in 1 digit number for samples per orientation followed by an enter"
+char q8[] = "please type in 1 digit number for sample frequency followed by an enter"
+char q9[] = "Please type in 1 2 3 corresponding to Offline Online or Demonstration mode"
+char q10[] = "Type in 1 2 3 4 5 corresponding to displaying the laser, gyro, magnetometer, accelerometer or servo info on the LCD"
+
+
+Startup Function ??? //ASK SARGE
+
+Configuring SCI  //Configuring SCI however input and transmit bit needs to be constantly switched, baud rate 9600, 8 data bits, 1 stop bit and no parity
+
+Interrupt driven button that detects if keypad 1 (computer) or 2 (hardware) is pressed 
+
+print_question(q1)
+//read 1 or 2 from keypad 
+
+switch(input){
+case 1:   //computer
+print_question(q1)
+//receive from SCI and store into buffer and increase pointer
+print_question(q2)
+//receive from SCI and store into buffer and increase pointer
+print_question(q3)
+//receive from SCI and store into buffer and increase pointer
+print_question(q4)
+//receive from SCI and store into buffer and increase pointer
+print_question(q5)
+//receive from SCI and store into buffer and increase pointer
+print_question(q6)
+//receive from SCI and store into buffer and increase pointer
+print_question(q7)
+//receive from SCI and store into buffer and increase pointer
+print_question(q8)
+//receive from SCI and store into buffer and increase pointer
+print_question(q9)
+//receive from SCI and store into buffer and increase pointer
+
+if (q9 = 3) {       //if its demo mode
+  print_question(q10)
+  //receive from SCI
+}
+
+case 2:
+print_question(q1)
+//receive from keypad and store into buffer and increase pointer
+print_question(q2)
+//receive from keypad and store into buffer and increase pointer
+print_question(q3)
+//receive from keypad and store into buffer and increase pointer
+print_question(q4)
+//receive from keypad and store into buffer and increase pointer
+print_question(q5)
+//receive from keypad and store into buffer and increase pointer
+print_question(q6)
+//receive from keypad and store into buffer and increase pointer
+print_question(q7)
+//receive from keypad and store into buffer and increase pointer
+print_question(q8)
+//receive from keypad and store into buffer and increase pointer
+print_question(q9)
+//receive from keypad and store into buffer and increase pointer
+
+}
+
+//As the SCI reads one char, this will result in having all the digits stored in a character buffer Once this 
+is done there need to store each variable as the integer it represents in memory. Loop through buffer
+using seperate functions that extract each integer value: This extraction process will be done converting ASCII 
+to decimal, and then storing each digit, multiplying by the base and then adding. E.g. 130 = 1 x 100 + 3 x 10 + 0
+We are then left with all the required inputs from the users in different memory locations (WITH LABELS)
+
+azimuth_min = (ascii_to_int(buffer[0]) * 100 + ascii_to_int(buffer[1]) * 10 ascii_to_int(buffer[2])
+azimuth_max = (ascii_to_int(buffer[3]) * 100 + ascii_to_int(buffer[4]) * 10 ascii_to_int(buffer[5])
+range_min = (ascii_to_int(buffer[6]) * 100 + ascii_to_int(buffer[7]) * 10 ascii_to_int(buffer[8]) //NEED TO FIGURE OUT MINUSES & PLUS
+range_max = (ascii_to_int(buffer[9]) * 100 + ascii_to_int(buffer[10]) * 10 ascii_to_int(buffer[11]) //NEED TO FIGURE OUT MINUSES & PLUS
+resolution = (ascii_to_int(buffer[12]) * 10 + ascii_to_int(buffer[13])
+samples_per_orientation = ascii_to_int(buffer[14])
+sample_frequecny = ascii_to_int(buffer[15])
+mode_flag = ascii_to_int(buffer[16])
+  
+
+
+
+
+/*
+Outputs (to do testing on):
+testing memory to see storing
+
+
+Final Values of:
+Azimuth min threshold
+Azimuth max threshold
+Range min threshold
+Range max threshold
+Resolution
+Samples per orientation 
+Sample Frequency 
+Offline, online, or demo mode flag
+If demo flag which reading we’re showing
+*/
