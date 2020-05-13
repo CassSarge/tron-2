@@ -1,0 +1,29 @@
+// PolarCoords [eleSteps+1][azSteps+1][3]
+// For this we need 3 arrays, with the top layer pointing to the next etc.
+The problem here is that we have 3 arrays, and two of them are variably sized. This is a pain in the ass. C89 (apparently the implementation used here that doesnt let you declare variables below top of scope) does not let you create an array of the size array[variable] without using array = (int*)malloc(variable*sizeof(int)). This would be fine, except there is literally an error INSIDE of malloc, like a runtime error where the command window spits out "No memory at [5A5D:2]". Buuuuut apparently it doesnt fail, because a failed allocation is meant to return a void pointer, and i have an if statement that checks for that that doesnt trigger. Additionally, you get the 'no memory at' warning when you try assigning values to points in the address.
+So anyway, the workaround for this error is to simply assign the array to have the maximum possible size, and then we only use the parts we need. This is a terrible, wasteful fix. But i think it works. Great practices.
+Below ive included how the code could look if malloc worked.
+
+PolarCoords = (int***)malloc((eleSteps+1)*sizeof(int**));  // Malloc 1
+
+ // Was the memory allocated successfully?
+if(PolarCoords == NULL){ 
+ result=0;// Unsucessful malloc  
+}
+
+
+for(i=0;i<eleSteps+1; i++){
+     PolarCoords[i] = (int**)malloc((aziSteps+1)*sizeof(int*)); // Malloc 2
+    
+       for(j=0;j<aziSteps+1; j++){
+          PolarCoords[i][j] = (int*)calloc(5, sizeof(int)); // Malloc 3
+                                                            // 5 so theres room for elevation,azimuth,range,IMU elevation, IMU azimuth
+          polarCoords[i][j][1] = minElevation+i*stepSize;
+          polarCoords[i][j][2] = minAzimuth  +j*stepSize;   
+     
+     }
+     // manually assign the borders here to be max elevation and max azimuth instead of overstepping.
+}
+
+Then have the same loop as above but actually find the ranges in it and call module 3
+Then have the same loop as above but free everything in reverse.
