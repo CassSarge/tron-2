@@ -169,6 +169,37 @@ void initServo(void){
     // These will run the PWM channels until theyre disabled
 }
 
+//_____________________________________________________________________________________
+/// Set the azimuth servo to the given angle. 
+/// Angle input can be between -90 and 90 (this will be remapped later so we will call the lower range 30 and upper range 160)
+/// 0.9ms duty cycle --> -90, 2.1ms duty cycle --> 90.  
+/// Therefore we map the duty cycle range of 1.2ms over the angle range of 180 degrees. 
+/// PWMDTYx = (0.9ms + (((angle input)+90)/180)*1.2ms)*24*10^6. 
+/// This formula simplifies into PWMDTY = 21600 + 16*(angle input + 900)
+//_____________________________________________________________________________________
+void SetAzimuth(int angle){
+  
+  
+  int dutyCycle;
+ // int temp;
+  unsigned char highByte;
+  unsigned char lowByte;
+   angle = 0;
+  // Apply the formula for finding duty cycle with our specified angle, dividing by 8 to align with clock prescalar
+  dutyCycle = 900 + angle;
+  dutyCycle = 16*dutyCycle;
+  dutyCycle = dutyCycle/8;
+  dutyCycle = dutyCycle + 2700;
+
+  // Why does dutyCycle become undefined here??
+  
+  lowByte = dutyCycle & 0xFF; // Acquire low byte of duty cycle through bitmasking
+  highByte= dutyCycle >> 8;   // Acquire high byte of duty cycle through bit shifting
+  
+  PWMDTY4 = highByte;  // Set high byte 
+  PWMDTY5 = lowByte;   // Set low byte
+  
+}
 
 
 
