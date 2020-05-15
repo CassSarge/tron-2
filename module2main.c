@@ -10,7 +10,7 @@ void main(void){
   
   
   // Initialise the servo
-  initServo();
+  //initServo();
   
  // result = module2(0,160,-60,60, 10, 4, 1,1);
 
@@ -19,7 +19,7 @@ void main(void){
  
   testLaser();
  
- 
+  SetAzimuth(0);
  
 
     //
@@ -30,13 +30,3 @@ void main(void){
   } /* loop forever */
   /* please make sure that you never leave main */
 }
-
-
-/*
-
-
-
-
-*/ 
-
-
