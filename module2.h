@@ -23,5 +23,6 @@ void initServo(void);
 
 void testLaser(void);
 
+void SetAzimuth(int angle);
 
 #endif                                                                           
