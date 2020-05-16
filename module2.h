@@ -9,10 +9,10 @@
 /// This file has the public definitions for this module
 /// Any functions required by external modules are listed here
 
-#define MAX_EL_STEPS 5
-#define MAX_AZ_STEPS 5
-#define ARRAY_VALS 7 // How many objects the polar coordinates array stores
-    // 5 meaning (elevation,azimuth,range,IMU el, IMU az)
+#define MAX_EL 900
+#define MIN_EL -900
+#define MAX_AZ 1600
+#define MIN_AZ 300
 
 
 
@@ -23,6 +23,17 @@ void initServo(void);
 
 void testLaser(void);
 
-void SetAzimuth(int angle);
+void setAzimuth(int angle);
+
+void setElevation(int angle);
+
+int sampleGetRange(int sampleFrequency, int samples_per_orientation);
+
+void sampleGetIMUdata(int* imuInfo);
+
+void sampleSendData(int range, int servoAzi, int servoEle, 
+                int IMU1, int IMU2, int IMU3, int IMU4);
+                
+void sampleAbort(void);
 
 #endif                                                                           
