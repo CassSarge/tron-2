@@ -7,20 +7,21 @@
 /// Main loop
 /// Calls module 2 for testing
 void main(void){
-  
-  
+ 
+ int result=0;
+ 
+ 	EnableInterrupts;
+ 
   // Initialise the servo
-  //initServo();
-  
- // result = module2(0,160,-60,60, 10, 4, 1,1);
+  initServo();
 
-	EnableInterrupts;
+  // Take and transmit measurements for every position
+  result = module2(30,160,-60,60, 100, 4, 1,1);
+
+
+
  
- 
-  testLaser();
- 
-  SetAzimuth(0);
- 
+
 
     //
   for(;;) {
@@ -30,3 +31,5 @@ void main(void){
   } /* loop forever */
   /* please make sure that you never leave main */
 }
+
+
