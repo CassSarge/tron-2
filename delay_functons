@@ -1,0 +1,41 @@
+//_____________________________________________________________________________________
+//
+/// This function will execute a delay that is accurate to 1ms.
+/// Input: Delay in milliseconds. Output: None. 
+//_____________________________________________________________________________________
+void variableDelayMS(int delay_ms){
+
+  int currentDelay = 0;
+  TSCR1 = 0x80;              // Enable TCNT and fast flag clear
+  TSCR2 = 0;                 // Set TCNT prescaler to 1
+  TIOS |= 0x20;              // Enable Timer 5
+  TC5 = TCNT + 24000;           // Increase the delay by 24 000 (1 ms)
+  
+    for(currentDelay = 0; currentDelay<delay_ms ; currentDelay ++){
+       while(!(TFLG1 & 0x20)); // Wait for delay
+       TC5 =+ 24000; // Increment delay for next loop by 1ms
+    }
+    
+  TIOS &= 0xDF; // Disable timer 5 (leaving the others untouched)
+  
+}
+
+void wait20us (void)
+{
+  TSCR1 = 0x90;                                        // Enable TCNT and fast time clear
+  TSCR2 = 0;                                           // Set TCNT prescaler to 1
+  TIOS |= 0x01;                                        // Enable OC0
+  TC0 = TCNT + 480;                                    // Pushing forward the delay by 480
+  while(!(TFLG1 & 0x01));                              // Waiting until the flag is cleared, 20 microseconds.
+}
+
+void delayby10ms(int kk) {
+  char ix;
+  TIOS |= 0x40; //enable OC6
+  TC6 = TCNT + 30000; //start OC6 operation with 20-ms delay
+    for(ix = 0; ix < kk; ix ++){
+      while(!(TFLG1 & 0x40));
+      TC6 += 30000;
+    }
+  TIOS &= 0xBF; //disable OC6
+}
