@@ -1,0 +1,44 @@
+int sampleGetRange(int sampleFrequency, int samples_per_orientation){
+ 
+ int sum = 0; 
+ int range = 0;
+ int i=0;
+ int fallingEdge = 0;
+ int risingEdge = 0;
+ int period = 0;
+ 
+ for(i=0; i < samples_per_orientation; i++){
+ 
+    // Delay here.
+    // Wait for rising edge
+    // Time until falling edge
+    // time -> distance
+    // Add distance to sum 
+    
+    TSCR1 =   0x90; // Enable timer counter, enable fast flag clear
+    TIOS &=   ~0x02;// Switch IOS1 to input-capture and leave other timers alone
+    // What prescalar is appropriate??  
+    TSCR2 =   0x06; // Disable overflow interrupt, prescalar to 64
+    TCTL4 =   0x04; // Capture on RISING edge only of PT1
+    TFLG1 =   0x02; // Write a 1 to the interrupt condition register for PT1, clearing it
+    // Wait for rising edge 
+    while(!(TFLG1 & 0x02)); // Wait until the first rising edge triggers TFLG1 for PT1
+    risingEdge = TC1;       // Saves the first edge and clears the TFLG1 flag
+    TCTL4 =   0x08; // Capture on FALLING edge only of PT1
+    // Time until falling edge
+    while(!(TFLG1 & 0x02)); // Wait until the falling edge triggers the TFLG1 flag
+    fallingEdge = TC1; // Saves the falling edge and clears TFLG1 flag
+    
+    period = fallingEdge - risingEdge;
+    
+    // distance = sum maths here; TODO after figuring out prescalar and that the rest works.
+     
+    sum += period; // add period to the running total distances.
+ }
+ 
+ range = sum/samples_per_orientation; // Find average range
+ 
+ 
+ return range; 
+  
+}
