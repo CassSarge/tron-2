@@ -16,8 +16,8 @@
 
 
 
-int module2(int azimuth_min, int azimuth_max, int elevation_min, int elevation_max, int 
-  resolution, int samples_per_orientation, int sample_frequency, int mode_flag);
+int acquireMeasurements(int minAzimuth, int maxAzimuth, int minElevation, int maxElevation, 
+            int resolution, int samples_per_orientation, int sampleFrequency);
 
 void initServo(void);
 
@@ -27,7 +27,7 @@ void setAzimuth(int angle);
 
 void setElevation(int angle);
 
-int sampleGetRange(int sampleFrequency, int samples_per_orientation);
+int getRange(int delayMS, int samples_per_orientation);
 
 void sampleGetIMUdata(int* imuInfo);
 
@@ -35,5 +35,19 @@ void sampleSendData(int range, int servoAzi, int servoEle,
                 int IMU1, int IMU2, int IMU3, int IMU4);
                 
 void sampleAbort(void);
+
+void delayby1ms(void);
+
+// Recent updates
+
+// calculate delayMS in module2 function
+// updated get range function and header
+// changed up module2 function
+// declared overflow as a global variable for module2.c
+// added overflow interrupt
+// swapped duty cycle ports for  azimuth and elevation
+// changed where azimuth and elevation functions are called
+// changed name of module2 function, removed mode flag as required input
+// Added boundary value looping back to module2 function
 
 #endif                                                                           
