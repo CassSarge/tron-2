@@ -7,24 +7,33 @@
 
 #include "module2.h"
 
-int module2(int minAzimuth, int maxAzimuth, int minElevation, int maxElevation, 
-            int resolution, int samples_per_orientation, int sampleFrequency, int modeFlag){
+int overflow =0;
 
-// minAzimuth and maxAzimuth: Between 30-160 degrees, expressed as degrees.
-// minElevation and maxElevation: Between -60 -> 60 degrees, expressed as degrees.
-// Resolution: Size of step, expressed as degrees^-1 (i.e. 1 represents 0.1 degrees.)
-// Samples_per_orientation: How many range samples we take at each discrete point before they are averaged
-// for a single more accurate value.
-// sample_frequency: ???
-// mode_flag: [1,2,3] -> [Online, Offline, Demo]
+
+//_____________________________________________________________________________________
+
+/// Loops through the range of angles given and takes measurements at each discrete point.
+/// Inputs: 
+/// minAzimuth and maxAzimuth: Between 30-160 degrees, expressed as degrees.
+/// minElevation and maxElevation: Between -60 -> 60 degrees, expressed as degrees.
+/// Resolution: Size of step, expressed as degrees^-1 (i.e. 1 represents 0.1 degrees.)
+/// Samples_per_orientation: How many range samples we take at each discrete point before they are averaged
+/// for a single more accurate value.
+/// Sample_frequency: How many times the angle changes per second, 1-999Hz, this is accurate to 1ms
+//_____________________________________________________________________________________
+
+int acquireMeasurements(int minAzimuth, int maxAzimuth, int minElevation, int maxElevation, 
+            int resolution, int samples_per_orientation, int sampleFrequency){
 
 
 int servoAzi=0,servoEle=0;
 int imuInfo[4]; 
 int range;
+int delayMS;
 int result;
 
-// As resolution is down to 0.1 degrees expressed as integer 1, all other angles must 
+
+//  As resolution is down to 0.1 degrees expressed as integer 1, all other angles must 
 // follow the same convention to avoid using floats.
 
 maxAzimuth    *= 10; // e.g. 160 -> 1600  
@@ -33,86 +42,76 @@ maxElevation  *= 10; // e.g. 60  -> 600
 minElevation  *= 10; // e.g. -60 -> -600
 
 
+// Change frequency into a delay, in milliseconds
+
+delayMS = 1000/(sampleFrequency);
+
 // Start the main loop for going through every single point the servo should get data from
 // This loop goes along the entire horizontal at one elevation, then jumps to the final horizontal point
 // and take a final reading before resetting to the initial horizontal, incrementing elevation, and repeating
-// 1) Set elevation
-// 2) Set azimuth
+// 1) Set azimuth
+// 2) Set elevation
 // 3) Get and transmit readings
-// 4) Increment azimuth by resolution while not up to maximum azimuth, and repeat from 2
-// 5) Jump to final azimuth regardless of resolution
-// 6) Get and transmit readings
-// 7) Increment heading by resolution while not up to maximum azimuth, and repeat from 1
-// 8) Jump to final elevation regardless of resolution
-// 9) Repeat steps 2 to 6
-// _______________________________________________________________________________________
+// 4) Loop
+// _____________________________________________________________________________________
 
-// Start at our initial elevation angle, and then incremement by resolution (in degrees^-1)
-for(servoEle = minElevation; servoEle < maxElevation; servoEle += resolution){
-      setElevation(servoEle);
-     
+// Start at our initial azimuth angle, and then incremement by resolution (in degrees^-1)
 
-
-     // Start at our initial azimuth angle, and then incremement by resolution (in degrees^-1) 
-     for(servoAzi = minAzimuth; servoAzi < maxAzimuth; servoAzi += resolution){
-        setAzimuth(servoAzi);
+ 
+for(servoAzi = minAzimuth; servoAzi <= maxAzimuth; servoAzi += resolution){
+    setAzimuth(servoAzi);
+      
+     // Start at our initial elevation angle, and then incremement by resolution (in degrees^-1) 
+    for(servoEle = minElevation; servoEle < maxElevation; servoEle += resolution){
+        setElevation(servoEle);
       
         // TRANSMITTING DATA HERE//
-        range = sampleGetRange(sampleFrequency, samples_per_orientation);  // Get laser range
+        range = getRange(delayMS, samples_per_orientation);  // Get laser range
         sampleGetIMUdata(imuInfo);          // Get IMU data
-        sampleSendData(range, servoAzi, servoEle, imuInfo[0], imuInfo[1], imuInfo[2], imuInfo[3]); // Send
-        
-        
+        sampleSendData(range, servoAzi, servoEle, imuInfo[0], imuInfo[1], imuInfo[2], imuInfo[3]); // Send        
         
      }
-    // Get values at the upper edge of azimuth
-    setAzimuth(maxAzimuth); // Jump to maximum azimuth from closest position without overflow
-    
-    // Get laser range
-    // Get IMU data
-    // TRANSMITTING DATA HERE//
-      range = sampleGetRange(sampleFrequency, samples_per_orientation);  // Get laser range
-      sampleGetIMUdata(imuInfo);          // Get IMU data
-      sampleSendData(range, maxAzimuth,servoEle, imuInfo[0], imuInfo[1], imuInfo[2], imuInfo[3]); // Send    
-    
-    setAzimuth(minAzimuth);
-    // Delay (because it takes longer for azimuth to reset from max to zero)
-          
+     
+     // Get far boundary value of elevation
+     servoEle = maxElevation;
+     setElevation(servoEle);
+      
+     // TRANSMITTING DATA HERE//
+     range = getRange(delayMS, samples_per_orientation);  // Get laser range
+     sampleGetIMUdata(imuInfo);          // Get IMU data
+     sampleSendData(range, servoAzi, servoEle, imuInfo[0], imuInfo[1], imuInfo[2], imuInfo[3]); // Send    
 }
  
-// Get values at the upper edge of elevation
- 
-  setElevation(maxElevation);
-  for(servoAzi = minAzimuth;servoAzi < maxAzimuth; servoAzi += resolution){
-          setAzimuth(servoAzi);               
 
-          // Get laser range
-          // Get IMU data
-          // TRANSMITTING DATA HERE //
-          range = sampleGetRange(sampleFrequency, samples_per_orientation);  // Get laser range
-          sampleGetIMUdata(imuInfo);          // Get IMU data
-          sampleSendData(range, servoAzi, servoEle, imuInfo[0], imuInfo[1], imuInfo[2], imuInfo[3]); // Send
+// Get far boundary values of azimuth
+servoAzi = maxAzimuth;
+ setAzimuth(servoAzi);
+      
+     // Start at our initial elevation angle, and then incremement by resolution (in degrees^-1) 
+    for(servoEle = minElevation; servoEle < maxElevation; servoEle += resolution){
+        setElevation(servoEle);
+      
+        // TRANSMITTING DATA HERE//
+        range = getRange(delayMS, samples_per_orientation);  // Get laser range
+        sampleGetIMUdata(imuInfo);          // Get IMU data
+        sampleSendData(range, servoAzi, servoEle, imuInfo[0], imuInfo[1], imuInfo[2], imuInfo[3]); // Send        
+        
+     }
+     
+     // Get far boundary value of elevation
+     servoEle = maxElevation;
+     setElevation(servoEle);
+      
+     // TRANSMITTING DATA HERE//
+     range = getRange(delayMS, samples_per_orientation);  // Get laser range
+     sampleGetIMUdata(imuInfo);          // Get IMU data
+     sampleSendData(range, servoAzi, servoEle, imuInfo[0], imuInfo[1], imuInfo[2], imuInfo[3]); // Send  
 
-  }
-
-// Get values from the final boundary point
-setAzimuth(maxAzimuth);
-          // Get laser range
-          // Get IMU data
-          // TRANSMITTING DATA HERE //
-          range = sampleGetRange(sampleFrequency,samples_per_orientation);  // Get laser range
-          sampleGetIMUdata(imuInfo);          // Get IMU data
-          sampleSendData(range, servoAzi, servoEle, imuInfo[0], imuInfo[1], imuInfo[2], imuInfo[3]); // Send
 
 // Reset both servos back to their initial positions.
-      //initServo();
+      initServo();
 
 
-
- 
- 
- 
-result = modeFlag; // Testing (get rid of variable not used warnings)
 return result;
     
 }
@@ -187,6 +186,7 @@ void initServo(void){
     // These will run the PWM channels until theyre disabled
 }
 
+
 //_____________________________________________________________________________________
 /// Set the azimuth servo to the given angle. 
 /// Angle input can be between 30 and 160 in the format 300 to 1600
@@ -217,13 +217,16 @@ void setAzimuth(int angle){
   
   lowByte = dutyCycle & 0xFF; // Acquire low byte of duty cycle through bitmasking
   highByte= dutyCycle >> 8;   // Acquire high byte of duty cycle through bit shifting
-  
-  PWMDTY4 = highByte;  // Set high byte 
-  PWMDTY5 = lowByte;   // Set low byte
+ 
+ 
+  PWMDTY6 = highByte;  // Set high byte 
+  PWMDTY7 = lowByte;   // Set low byte
+
   
 }
 
 //_____________________________________________________________________________________
+//
 /// Set the elevation servo to the given angle. 
 /// Angle input can be between -60 and 60. 
 /// This is within range of -90 to 90 (servo limits) and does not need to be remapped. 
@@ -250,28 +253,58 @@ void setElevation(int angle){
 
   lowByte = dutyCycle & 0xFF; // Acquire low byte of duty cycle through bitmasking
   highByte= dutyCycle >> 8;   // Acquire high byte of duty cycle through bit shifting
-  
-  PWMDTY6 = highByte;  // Set high byte 
-  PWMDTY7 = lowByte;   // Set low byte
+    
+  PWMDTY4 = highByte;  // Set high byte 
+  PWMDTY5 = lowByte;   // Set low byte
   
 }
 
-int sampleGetRange(int sampleFrequency, int samples_per_orientation){
- 
- int sum = 0; 
+int getRange(int delayMS, int samples_per_orientation){
+
  int range = 0;
- int i=0;
+ int i=0,j=0;
  
- for(i=0; i < samples_per_orientation; i++){  
-    sum += sampleFrequency; // TODO: Actually interface with the laser here
+ unsigned difference, fallingEdge, risingEdge;
+ unsigned long pulseWidth,distanceCM,sum; 
+ 
+ // Delay here.
+  for(j=0; j < delayMS; j++){
+   delayby1ms(); // Delay the number of milliseconds required by frequency 
+  }
+
+ 
+ for(i=0; i < samples_per_orientation; i++){
+ 
+    
+    // Set overflow to zero
+    overflow = 0;
+    // Set up timer to capture rising edge
+    TSCR1 = 0x90; // Enable timer counter, enable fast flag clear
+    TSCR2 = 0x00; // Disable overflow interrupt, prescalar stays at 0
+                  // Prescalar has to remain 0 due to its use in interrupts
+    TIOS &= ~0x02;// Switch IOS1 to input-capture and leave other timers alone
+    TCTL4 = 0x04; // Capture on RISING edge only of PT1
+    TFLG1 = 0x02; // Write a 1 to the interrupt flag register for PT1, clearing it
+    // Wait for rising edge 
+    while(!(TFLG1 & 0x02)); // Wait until the first rising edge triggers TFLG1 for PT1
+    TFLG2 = 0x80; // Clear the timer overflow flag
+    TSCR2|= 0x80; // Turn on the Timer overflow interrupt bit                                          // Can interrupt from overflow
+    risingEdge = TC1; // Save the time the rising edge was recorded, and clear the C1F flag from TFLG1
+    TCTL4 = 0x08; // Capture on FALLING edge only of PT1
+    // Time until falling edge
+    while(!(TFLG1 & 0x02)); // Wait until the falling edge triggers the TFLG1 flag
+    fallingEdge = TC1; // Saves the falling edge and clears TFLG1 flag
+    difference = fallingEdge - risingEdge; // How many clock cycles pulse was high for disregarding overflow
+    if(fallingEdge < risingEdge){  // If the time that the edge fell was recorded 'before' it rose, then:
+      overflow -= 1; // Subtract 1 from overflow
+    }
+    
+    pulseWidth = (long)overflow*65536u + (long)difference;
+    
+    distanceCM = pulseWidth/240; // Conversion from clock cycles to distance in cm
+    
+    sum += distanceCM; // add period to the running total distances.
  }
- 
- range = sum/samples_per_orientation; // Find average range
- 
- 
- return range; 
-  
-}
 
 
 void sampleGetIMUdata(int* imuInfo){
@@ -300,10 +333,9 @@ void sampleAbort(void){
   
 }
 
-
-
-interrupt 9 void inputChan1ISR (void) {
+interrupt 16 void timerOverflowISR (void){
   
-    PORTB = 0xFF; //Turn on all the LEDs
+    TFLG2 = 0x80; // Clear the timer overflow flag
+    overflow++; //increment overflow
   
 }
